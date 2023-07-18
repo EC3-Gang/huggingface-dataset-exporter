@@ -11,7 +11,7 @@ parser.add_argument('-d', '--dataset', required=True, help='Name of the Hugging 
 parser.add_argument('-f', '--fields', required=True, help='Fields you would like to include in the export (comma separated).')
 parser.add_argument('-o', '--output', required=True, help='Name of the output JSON file.')
 parser.add_argument('-s', '--subset', required=False, default='train', help='Subset of the dataset to export (default: %(default)s).')
-parser.add_argument('-p', '--split', required=False, default=None, help='Specific split of the dataset to export, if applicable.')
+parser.add_argument('-l', '--lines', required=False, default=False, type=bool, help='Whether or not to export the dataset as JSONLINES')
 
 # Parse the arguments
 args = parser.parse_args()
@@ -31,12 +31,18 @@ else:
     json_export = []
 
     # Filter dataset for selected fields and export to JSON
-    selected_dataset = dataset[args.subset].shard(num_shards=10, index=args.split) if args.split else dataset[args.subset]
+    selected_dataset = dataset[args.subset]
     for data in selected_dataset:
         export_data = {field:data[field] for field in selected_fields if field in data}
         json_export.append(export_data)
+    if args.lines:
+        with open(f'{args.output}.jsonl', 'w') as json_file:
+            json.dump(json_export, json_file, lines=True)
+            print(f"Dataset exported successfully as '{args.output}.jsonl'")
 
-    with open(f'{args.output}.json', 'w') as json_file:
-        json.dump(json_export, json_file)
+    else:
+        with open(f'{args.output}.json', 'w') as json_file:
+            json.dump(json_export, json_file)
+            print(f"Dataset exported successfully as '{args.output}.json'")
 
-    print(f"Dataset exported successfully as '{args.output}.json'")
+    

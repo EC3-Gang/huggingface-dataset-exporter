@@ -35,14 +35,14 @@ else:
     for data in selected_dataset:
         export_data = {field:data[field] for field in selected_fields if field in data}
         json_export.append(export_data)
+    
+    # Cover the possibility of exporting in JSON Lines format
     if args.lines:
         with open(f'{args.output}.jsonl', 'w') as json_file:
-            json.dump(json_export, json_file, lines=True)
+            for item in json_export:
+                json_file.write(json.dumps(item) + "\n")
             print(f"Dataset exported successfully as '{args.output}.jsonl'")
-
     else:
         with open(f'{args.output}.json', 'w') as json_file:
             json.dump(json_export, json_file)
             print(f"Dataset exported successfully as '{args.output}.json'")
-
-    

@@ -33,7 +33,8 @@ else:
     # Filter dataset for selected fields and export to JSON
     selected_dataset = dataset[args.subset]
     for data in selected_dataset:
-        export_data = {field:data[field] for field in selected_fields if field in data}
+        text = "\n".join([f"{field}: {data[field]}" for field in selected_fields if field in data])
+        export_data = {'text': text}
         json_export.append(export_data)
     
     # Cover the possibility of exporting in JSON Lines format
